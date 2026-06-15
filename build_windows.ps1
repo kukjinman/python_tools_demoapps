@@ -11,7 +11,6 @@ if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) {
 $Root = $PSScriptRoot
 $Venv = Join-Path $Root '.venv-windows-build'
 $Python = Join-Path $Venv 'Scripts\python.exe'
-$Dist = Join-Path $Root 'dist'
 $Work = Join-Path $Root 'build\pyinstaller'
 $Specs = Join-Path $Root 'build\specs'
 $DataSeparator = [IO.Path]::PathSeparator
@@ -30,7 +29,7 @@ if (-not $SkipInstall) {
     & $Python -m pip install -r (Join-Path $Root 'requirements-windows.txt')
 }
 
-New-Item -ItemType Directory -Force -Path $Dist, $Work, $Specs | Out-Null
+New-Item -ItemType Directory -Force -Path $Work, $Specs | Out-Null
 
 function Add-DataArgument {
     param(
@@ -45,6 +44,7 @@ function Add-DataArgument {
 $Apps = @(
     @{
         Name = 'tool8_opencv_mosaic'
+        Folder = 'tool8_opencv-python'
         Entry = 'tool8_opencv-python\8_opencv-python.py'
         Extra = @(
             '--add-data', (Add-DataArgument 'tool8_opencv-python\man_iamge.jpg' '.')
@@ -52,11 +52,13 @@ $Apps = @(
     },
     @{
         Name = 'tool10_selenium_stock'
+        Folder = 'tool10_selenium'
         Entry = 'tool10_selenium\10_selenium.py'
         Extra = @()
     },
     @{
         Name = 'projectB_docs_translator'
+        Folder = 'projectB_docstranslator'
         Entry = 'projectB_docstranslator\main.py'
         Extra = @(
             '--add-data', (Add-DataArgument 'projectB_docstranslator\docs_example' 'docs_example')
@@ -64,6 +66,7 @@ $Apps = @(
     },
     @{
         Name = 'projectC_certificate_maker'
+        Folder = 'projectC_auto_certification_maker'
         Entry = 'projectC_auto_certification_maker\main.py'
         Extra = @(
             '--add-data', (Add-DataArgument 'projectC_auto_certification_maker\resource' 'resource')
@@ -71,6 +74,7 @@ $Apps = @(
     },
     @{
         Name = 'projectE_video_mosaic'
+        Folder = 'projectE_video_mosaic_app'
         Entry = 'projectE_video_mosaic_app\main.py'
         Extra = @(
             '--add-data', (Add-DataArgument 'projectE_video_mosaic_app\sample_video.mp4' '.')
@@ -78,6 +82,7 @@ $Apps = @(
     },
     @{
         Name = 'projectF_wordcloud_webapp'
+        Folder = 'projectF_wordcloud_webapp'
         Entry = 'projectF_wordcloud_webapp\flask_app.py'
         Extra = @(
             '--add-data', (Add-DataArgument 'projectF_wordcloud_webapp\templates' 'templates'),
@@ -90,7 +95,10 @@ $Apps = @(
 Push-Location $Root
 try {
     foreach ($App in $Apps) {
-        Write-Host "Building $($App.Name).exe..."
+        $Dist = Join-Path (Join-Path $Root $App.Folder) 'dist'
+        New-Item -ItemType Directory -Force -Path $Dist | Out-Null
+
+        Write-Host "Building $($App.Name).exe -> $Dist"
         $Arguments = @(
             '-m', 'PyInstaller',
             '--noconfirm',
@@ -114,4 +122,4 @@ finally {
 }
 
 Write-Host ''
-Write-Host "완료: $Dist"
+Write-Host '완료: 각 앱 폴더의 dist 디렉터리를 확인하세요.'
