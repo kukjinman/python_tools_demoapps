@@ -1,10 +1,11 @@
-import os
+from pathlib import Path
+
 from docx import Document
 
-output_directory = 'output'
-
 #4 create_certificates 함수
-def create_certificates(list_var, template_path):
+def create_certificates(list_var, template_path, output_directory):
+    output_directory = Path(output_directory)
+    output_directory.mkdir(parents=True, exist_ok=True)
 
     for item in list_var:
         number_, class_, name_ = item
@@ -21,9 +22,6 @@ def create_certificates(list_var, template_path):
                 if 'name' in run.text:
                     run.text = run.text.replace('name', name_)
 
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-
         #6 수정된 문서를 새 파일로 저장
-        output_path = output_directory + f'/certificate_{name_}.docx'
-        doc.save(output_path)
+        certificate_path = output_directory / f'certificate_{name_}.docx'
+        doc.save(certificate_path)

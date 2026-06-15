@@ -1,8 +1,8 @@
 import qrcode
-import os
 
 #1 generate_qrcode 함수
-def generate_qrcode(data):
+def generate_qrcode(data, static_dir):
+    static_dir.mkdir(parents=True, exist_ok=True)
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -13,12 +13,5 @@ def generate_qrcode(data):
     qr.make(fit=True)
     img = qr.make_image(fill='black', back_color='white')
 
-    #2 static 폴더 생성 및 qrcode.png 저장
-    static_dir = os.path.join(os.path.dirname(__file__), 'static')
-    if not os.path.exists(static_dir):
-        os.makedirs(static_dir, exist_ok=True)
-
-    png_path = os.path.join(static_dir, 'qrcode.png')
-
-    img.save(png_path)
-
+    #2 static 폴더에 qrcode.png 저장
+    img.save(static_dir / 'qrcode.png')
